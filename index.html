@@ -2,31 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>Our Love Story</title>
   <style>
-    /* CSS Variables for Light Mode (Default) */
-    :root{
-      --bg:#fdeef6;
-      --env:#ff6b89;
-      --env-dark:#e34f6b;
-      --paper:#fff9f8;
-      --text:#4b2a2a;
-      --accent:#ff85a2;
-      --shadow:0 10px 30px rgba(0,0,0,0.08);
-      --light-pink:#ffeff5;
-      --card-bg:#fff;
-      --lightbox-bg:rgba(0,0,0,0.92);
-      --heart-color:#ff85a2;
-      --footer-color:#9e8a8a;
-      --secondary-btn:#a78f97;
-      --secondary-btn-hover:#9a7f88;
-      --gallery-label:rgba(0,0,0,0.7);
-      --time-card-border:#ff85a2;
-      --time-card-bg:#fff9fb;
-    }
-    
-    /* CSS Variables for Dark Mode */
+ /* CSS Variables for Light Mode (Default) */
+:root{
+  --bg:#fdeef6;
+  --env:#ff6b89;
+  --env-dark:#e34f6b;
+  --paper:#fff9f8;
+  --text:#4b2a2a;
+  --accent:#ff85a2;
+  --shadow:0 10px 30px rgba(0,0,0,0.08);
+  --light-pink:#ffeff5;
+  --card-bg:#fff;
+  --lightbox-bg:rgba(0,0,0,0.92);
+  --heart-color:#ff85a2;
+  --footer-color:#9e8a8a;
+  --secondary-btn:#a78f97;
+  --secondary-btn-hover:#9a7f88;
+  --gallery-label:rgba(0,0,0,0.7);
+  /* Time card colors for light mode to improve contrast */
+  --time-card-border: rgba(227,79,107,0.12);
+  --time-card-bg: var(--card-bg);
+}
+
+/* CSS Variables for Dark Mode */
     :root[data-theme="dark"] {
       --bg:#1a0f1a;
       --env:#c44569;
@@ -102,12 +103,134 @@
       opacity: 0.5;
     }
     
-    .letter-pagination button:disabled:hover {
-      transform: none !important;
-      box-shadow: none !important;
-    }
+.letter-pagination button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
 
-    /* HEADER DECORATION */
+/* IOS-STYLE PREVIEW FEATURE (Peek & Pop) */
+/* preview overlay - mimics iOS peek */
+.ios-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  
+  .ios-preview.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .preview-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    max-width: 380px;
+    width: 85%;
+    overflow: hidden;
+    box-shadow: 0 30px 50px rgba(0,0,0,0.5);
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  
+  .ios-preview.active .preview-card {
+    transform: scale(1);
+  }
+  
+  .preview-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .preview-caption {
+    padding: 18px 16px 20px;
+    color: var(--text);
+    background: var(--card-bg);
+  }
+  
+  .preview-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--env-dark);
+  }
+  
+  .preview-date {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .preview-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 16px 18px;
+    background: var(--card-bg);
+    border-top: 1px solid rgba(128,128,128,0.2);
+  }
+  
+  .preview-btn {
+    background: var(--accent);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    flex: 0 1 auto;
+  }
+  
+  .preview-btn.secondary {
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+  }
+  
+  .preview-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* hint text */
+  .preview-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 6px black;
+  }
+  
+/* long-press activation zone (no extra UI) */
+.gallery-item {
+  touch-action: manipulation; /* improve touch response */
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
     .page-header{position:relative;margin-bottom:25px;}
     .page-header h1{font-size:32px;color:var(--env-dark);margin:0;position:relative;display:inline-block;transition:color 0.5s ease;}
     .page-header h1:after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--accent);border-radius:3px;transition:background 0.5s ease;}
@@ -123,7 +246,7 @@
     }
 
     /* INTRO PAGE */
-    .music-card{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow);padding:30px;max-width:380px;text-align:center;animation:float 3s ease-in-out infinite;z-index:2;border:1px solid rgba(255,255,255,0.1);transition:all 0.5s ease;}
+    .music-card{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow);padding:20px;max-width:380px;text-align:center;animation:float 3s ease-in-out infinite;z-index:2;border:1px solid rgba(255,255,255,0.1);transition:all 0.5s ease;}
     .music-card img{width:100%;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.1);transition:transform 0.5s;}
     .music-card:hover img{transform:scale(1.02);}
     .music-info{margin-top:20px;}
@@ -133,7 +256,7 @@
 
     /* PAGE 1: ENHANCED GALLERY */
     #gallery-page{padding:20px;justify-content:flex-start;padding-top:80px;}
-    #gallery-page .gallery-container{width:100%;max-width:1200px;}
+    #gallery-page .gallery-container{width:100%;max-width:1200px;margin:0 auto;}
     
     .gallery-controls{display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:25px;}
     .gallery-nav-btn{background:var(--env);color:white;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
@@ -388,7 +511,10 @@
     /* TIME PAGE */
     .time-card{background:var(--time-card-bg);border-radius:20px;padding:35px 25px;box-shadow:var(--shadow);max-width:400px;text-align:center;border:2px solid var(--time-card-border);position:relative;overflow:hidden;transition:all 0.5s ease;}
     .time-card:before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg, var(--env), var(--accent));transition:background 0.5s ease;}
-    .time-card h1{color:var(--env-dark);font-size:24px;margin:0 0 20px;transition:color 0.5s ease;}
+    .time-card h1{color:var(--text) !important;font-size:24px;margin:0 0 20px;transition:color 0.5s ease;text-shadow:0 2px 8px rgba(0,0,0,0.25);}
+
+    /* Improve contrast for the page header on the Time page */
+    #time-page .page-header h1 { color: var(--text); }
     .time-card p{margin:12px 0;font-size:17px;font-weight:500;color:var(--text);transition:color 0.5s ease;}
     .cute-heart{font-size:22px;color:var(--accent);display:inline-block;margin-right:8px;transition:color 0.5s ease;}
     .counter-display{font-size:18px;background:var(--light-pink);padding:15px;border-radius:12px;margin:20px 0;transition:background 0.5s ease;}
@@ -477,7 +603,7 @@
         <h2>🎶 Our Theme Song</h2>
         <p><em>"This song reminds me of the day you said YES... the moment my world became brighter, and my heart finally found its home in you."</em></p>
         <p>You are my melody, my safe place, and the sweetest part of my story. Every beat of this song is for you. 💕</p>
-        <button id="playSong">▶ Play Theme Song</button>
+        <button id="playSong" aria-pressed="false" title="Play or pause theme song">▶ Play Theme Song</button>
       </div>
     </div>
     <div class="nav-buttons">
@@ -486,33 +612,69 @@
     <div class="footer-note">Made with 💖 for Lyn</div>
   </div>
 
-  <!-- PAGE 1: ENHANCED GALLERY -->
-  <div class="page" id="gallery-page">
-    <div class="hearts" id="gallery-hearts"></div>
-    <div class="page-header">
-      <span class="heart-decoration">📸</span>
-      <h1>Our Beautiful Memories</h1>
-      <span class="heart-decoration">💞</span>
-    </div>
-    
-    <div class="gallery-container">
-      <div class="gallery-controls">
-        <button class="gallery-nav-btn" id="prev-gallery">←</button>
-        <span class="gallery-counter">Memories 1-6 of 6</span>
-        <button class="gallery-nav-btn" id="next-gallery">→</button>
-      </div>
-      
-      <div class="gallery" id="memory-gallery">
-        <!-- Gallery items will be dynamically added -->
-      </div>
-    </div>
-    
-    <div class="nav-buttons">
-      <button class="secondary" id="backToIntro">⬅ Back to Song</button>
-      <button id="toEnvelope">Open Love Letter ➝</button>
-    </div>
-    <div class="footer-note">Click on any photo to view it larger</div>
+ <!-- PAGE 1: ENHANCED GALLERY WITH PICTURE & VIDEO + FIREBASE -->
+<div class="page" id="gallery-page">
+  <div class="hearts" id="gallery-hearts"></div>
+  <div class="page-header">
+    <span class="heart-decoration">📸</span>
+    <h1>Our Beautiful Memories</h1>
+    <span class="heart-decoration">💞</span>
   </div>
+  
+  <div class="gallery-container">
+    <!-- MEDIA TYPE FILTER -->
+    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+      <button class="media-filter active" data-type="all" style="background: var(--env-dark); padding: 8px 16px; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: 600;">All</button>
+      <button class="media-filter" data-type="image" style="background: var(--secondary-btn); padding: 8px 16px; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: 600;">Photos</button>
+      <button class="media-filter" data-type="video" style="background: var(--secondary-btn); padding: 8px 16px; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: 600;">Videos</button>
+    </div>
+    
+    <!-- GALLERY CONTROLS -->
+    <div class="gallery-controls">
+      <button class="gallery-nav-btn" id="prev-gallery">←</button>
+      <span class="gallery-counter">Loading...</span>
+      <button class="gallery-nav-btn" id="next-gallery">→</button>
+    </div>
+    
+    <!-- GALLERY GRID -->
+    <div class="gallery" id="memory-gallery" style="min-height: 200px;"></div>
+    
+    <!-- ADD MEDIA BUTTONS -->
+    <div style="margin: 20px 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+      <button id="addPictureBtn" style="background: var(--accent); padding: 12px 24px; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: 600;">📷 Add Photo</button>
+      <button id="addVideoBtn" style="background: var(--accent); padding: 12px 24px; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: 600;">🎥 Add Video</button>
+      <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;">
+    </div>
+    
+    <!-- FIREBASE CONFIG STATUS -->
+    <div id="firebaseStatus" style="font-size: 12px; color: var(--text); margin-top: 10px;">⚡ Connecting to Firebase...</div>
+  </div>
+  
+  <div class="nav-buttons">
+    <button class="secondary" id="backToIntro">⬅ Back to Song</button>
+    <button id="toEnvelope">Open Love Letter ➝</button>
+  </div>
+  <div class="footer-note">Click on any media to view larger</div>
+</div>
+
+<!-- ENHANCED LIGHTBOX FOR VIDEOS -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="close-lightbox">×</button>
+  <div class="lightbox-content">
+    <div id="lightbox-media-container" style="width: 100%; text-align: center;">
+      <img src="" alt="expanded memory" id="lightbox-image" style="display: none; max-width: 100%; max-height: 70vh; border-radius: 12px;">
+      <video id="lightbox-video" controls style="display: none; max-width: 100%; max-height: 70vh; border-radius: 12px;"></video>
+    </div>
+    <div class="lightbox-info">
+      <h3 id="lightbox-title">Our Memory</h3>
+      <p id="lightbox-date"></p>
+    </div>
+  </div>
+  <div class="lightbox-nav">
+    <button id="lightbox-prev">←</button>
+    <button id="lightbox-next">→</button>
+  </div>
+</div>
 
   <!-- Enhanced Lightbox -->
   <div class="lightbox" id="lightbox">
@@ -541,11 +703,11 @@
     <div class="envelope-container">
       <!-- ENVELOPE 1: 15th Monthsary -->
       <div class="scene">
-        <div class="envelope" id="env1">
+        <div class="envelope" id="env1" role="button" tabindex="0" aria-controls="letter1" aria-expanded="false">
           <div class="body"></div>
           <div class="flap"></div>
           <div class="seal">15</div>
-          <div class="letter" id="letter1">
+          <div class="letter" id="letter1" aria-hidden="true">
             <!-- LETTER PAGINATION -->
             <div class="letter-pagination">
               <button class="prev-page" id="prev-letter-1">← Prev</button>
@@ -578,11 +740,11 @@
       
       <!-- ENVELOPE 2: To My Wife -->
       <div class="scene">
-        <div class="envelope" id="env2">
+        <div class="envelope" id="env2" role="button" tabindex="0" aria-controls="letter2" aria-expanded="false">
           <div class="body"></div>
           <div class="flap"></div>
           <div class="seal">16</div>
-          <div class="letter" id="letter2">
+          <div class="letter" id="letter2" aria-hidden="true">
             <!-- LETTER PAGINATION -->
             <div class="letter-pagination">
               <button class="prev-page" id="prev-letter-2">← Prev</button>
@@ -598,9 +760,26 @@
                 
                 <p>My dearest Lyn,</p>
                 
-                <p>Happy 20th Monthsarry Babyy💋🌹 Iloveyouuuu sm💝 Thankyou for being my side always, thru my ups and down. nndyan kaparin sakin kahit n nakakainis ako I know  you have so many expectations from me na siguro diko naattain yon kaya ganyan ka pero love n love kita and naiintindihan ko nmn yon and sorry love sa mga kasalanan kong nagawa sayo pagpasesyahan mona plss alam kong mabilis yan uminit ulo moo, pero love n love parin kita onti nlg love 2nd anniversary n natin pag papaplanuhan konayon for us n sana or dapat medyo bongga ang susunod n anniversary natin gusto kong maglevel up pa n di lg tayo nagsstick lg sa gantong situations magsisipag ako para sayo love ko. and sana may mga bagay kang natutunan sakin and naiintindihan iHope na mag grow pa tayo ng sabay para in the future were ready to be soon your HUSBAND and my WIFE💍 thankyou sm sa lahat love and super duper efforts mo sakin I appreciated lahat yon super naapreaciate ko and ikaw lg at ikaw lg ang mamahalin ko🫵🏼 at pagnanasahan ko 🥺 iloveyouuuu smm baby koo 💋💖 HAPPY 20TH MONTHSARRY SATIN BABY iloveyouuuu 😚💓🫦💗"</p>
+                <p>Happy 20th Monthsarry Babyy💋🌹 Iloveyouuuu sm💝 Thankyou for being my side always, thru my ups and down. nndyan kaparin sakin kahit n nakakainis ako I know  you have so many expectations from me na siguro diko naattain yon kaya ganyan ka pero love n love kita and naiintindihan ko nmn yon and sorry love sa mga kasalanan kong nagawa sayo pagpasesyahan mona plss alam kong mabilis yan uminit ulo moo, pero love n love parin kita onti nlg love 2nd anniversary n natin pag papaplanuhan konayon for us n sana or dapat medyo bongga ang susunod n anniversary natin gusto kong maglevel up pa n di lg tayo nagsstick lg sa gantong situations magsisipag ako para sayo love ko. and sana may mga bagay kang natutunan sakin and naiintindihan iHope na mag grow pa tayo ng sabay para in the future were ready to be soon your HUSBAND and my WIFE💍 thankyou sm sa lahat love and super duper efforts mo sakin I appreciated lahat yon super naapreaciate ko and ikaw lg at ikaw lg ang mamahalin ko🫵🏼 at pagnanasahan ko 🥺 iloveyouuuu smm baby koo 💋💖 HAPPY 20TH MONTHSARRY SATIN BABY iloveyouuuu 😚💓🫦💗</p>
                <div class="letter-signature">
                   <p>With all my love,</p>                         
+                  <p><strong>Always yours, Gab</strong></p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- PAGE 2 -->
+            <div class="letter-page" data-page="2">
+              <div class="message">
+                <h1>Page 2 - To Be Continued</h1>
+                <div class="letter-date">Our Journey Together 💝</div>
+                
+                <p>My love,</p>
+                
+                <p>Add more content for the second page of this letter here. You can continue expressing your feelings, share more memories, or add any additional thoughts you want to include in this letter.</p>
+                
+                <div class="letter-signature">
+                  <p>Forever in love,</p>
                   <p><strong>Always yours, Gab</strong></p>
                 </div>
               </div>
@@ -656,247 +835,597 @@
   </audio>
 
   <script>
-    // ==================== DARK MODE FUNCTIONALITY ====================
-    
-    // Get theme toggle button
-    const themeToggle = document.getElementById('themeToggle');
-    
-    // Check for saved theme preference or use system preference
-    function getPreferredTheme() {
-      const storedTheme = localStorage.getItem('theme');
-      if (storedTheme) {
-        return storedTheme;
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // ==================== DARK MODE FUNCTIONALITY ====================
+  const themeToggle = document.getElementById('themeToggle');
+  
+  function getPreferredTheme() {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) return storedTheme;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
     }
-    
-    // Apply theme
-    function applyTheme(theme) {
-      const root = document.documentElement;
+  }
+  
+  applyTheme(getPreferredTheme());
+  
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  });
+
+  // ==================== MUSIC PLAYER ====================
+  const music = document.getElementById('bg-music');
+  const playSongBtn = document.getElementById('playSong');
+  let isPlaying = false;
+
+  playSongBtn.addEventListener('click',()=>{
+    if(isPlaying){
+      music.pause();
+      isPlaying = false;
+      playSongBtn.textContent = "▶ Play Theme Song";
+    } else {
+      music.play().catch(e => console.log("Autoplay prevented:", e));
+      isPlaying = true;
+      playSongBtn.textContent = "⏸ Pause Music";
+    }
+  });
+
+  // ==================== PAGE NAVIGATION ====================
+  const introPage = document.getElementById('intro-page');
+  const galleryPage = document.getElementById('gallery-page');
+  const envelopePage = document.getElementById('envelope-page');
+  const timePage = document.getElementById('time-page');
+  const counter = document.getElementById('counter');
+
+  // ==================== YOUR FIREBASE CONFIG ====================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBMt2AwW3cq8Og1gqV3MfPaUGearhnAWcU",
+    authDomain: "basedpos-inventory.firebaseapp.com",
+    projectId: "basedpos-inventory",
+    storageBucket: "basedpos-inventory.firebasestorage.app",
+    messagingSenderId: "563342767045",
+    appId: "1:563342767045:web:c092f9316026927f4911ac",
+    measurementId: "G-DR1F7LW208"
+  };
+
+  // Initialize Firebase
+  let app, storage, db, analytics;
+  let firebaseInitialized = false;
+  
+  try {
+    app = firebase.initializeApp(firebaseConfig);
+    storage = firebase.storage();
+    db = firebase.firestore();
+    analytics = firebase.analytics();
+    firebaseInitialized = true;
+    if (document.getElementById('firebaseStatus')) {
+      document.getElementById('firebaseStatus').innerHTML = '✅ Connected to Firebase';
+      document.getElementById('firebaseStatus').style.color = '#4CAF50';
+    }
+    console.log('Firebase initialized successfully!');
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    if (document.getElementById('firebaseStatus')) {
+      document.getElementById('firebaseStatus').innerHTML = '❌ Firebase connection failed. Using local storage.';
+      document.getElementById('firebaseStatus').style.color = '#ff6b6b';
+    }
+  }
+
+  // ==================== GALLERY VARIABLES ====================
+  let allMedia = [];
+  let currentFilter = 'all';
+  let currentPage = 1;
+  const itemsPerPage = 6;
+  let currentMediaIndex = 0;
+
+  // ==================== LOAD MEDIA FROM FIREBASE ====================
+  async function loadMediaFromFirebase() {
+    if (!firebaseInitialized) {
+      loadSampleData();
+      return;
+    }
+
+    try {
+      const snapshot = await db.collection('memories').orderBy('timestamp', 'desc').get();
+      allMedia = [];
       
-      if (theme === 'dark') {
-        root.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
+      if (snapshot.empty) {
+        console.log('No memories found, adding sample data...');
+        await addSampleDataToFirebase();
       } else {
-        root.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
+        snapshot.forEach(doc => {
+          allMedia.push({ id: doc.id, ...doc.data() });
+        });
+        refreshGallery();
       }
+    } catch (error) {
+      console.error('Error loading from Firebase:', error);
+      if (document.getElementById('firebaseStatus')) {
+        document.getElementById('firebaseStatus').innerHTML = '⚠️ Using local sample data';
+      }
+      loadSampleData();
+    }
+  }
+
+  // ==================== SAMPLE DATA ====================
+  function loadSampleData() {
+    allMedia = [
+      { type: 'image', src: 'https://placekitten.com/300/200', title: 'Our First Date', date: 'The beginning of everything 💖', id: 'sample1' },
+      { type: 'image', src: 'https://placekitten.com/301/200', title: 'Laughing Together', date: 'Your smile lights up my world ✨', id: 'sample2' },
+      { type: 'image', src: 'https://placekitten.com/302/200', title: 'Special Celebration', date: 'Celebrating us 🎉', id: 'sample3' },
+      { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', title: 'Our First Video', date: 'Beautiful moment captured 🎥', id: 'sample4' }
+    ];
+    refreshGallery();
+  }
+
+  async function addSampleDataToFirebase() {
+    const sampleData = [
+      { type: 'image', src: 'https://placekitten.com/300/200', title: 'Our First Date', date: 'The beginning of everything 💖', timestamp: firebase.firestore.FieldValue.serverTimestamp() },
+      { type: 'image', src: 'https://placekitten.com/301/200', title: 'Laughing Together', date: 'Your smile lights up my world ✨', timestamp: firebase.firestore.FieldValue.serverTimestamp() },
+      { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', title: 'Our First Video', date: 'Beautiful moment captured 🎥', timestamp: firebase.firestore.FieldValue.serverTimestamp() }
+    ];
+    
+    for (const item of sampleData) {
+      await db.collection('memories').add(item);
+    }
+    loadMediaFromFirebase();
+  }
+
+  // ==================== UPLOAD MEDIA TO FIREBASE ====================
+  async function uploadMedia(file, type) {
+    if (!firebaseInitialized) {
+      alert('Firebase not configured. Using local fallback.');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        allMedia.unshift({
+          type: type,
+          src: e.target.result,
+          title: `${type === 'image' ? 'Photo' : 'Video'} ${allMedia.length + 1}`,
+          date: `Added on ${new Date().toLocaleDateString()} 💝`,
+          id: 'local-' + Date.now()
+        });
+        refreshGallery();
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    try {
+      if (document.getElementById('firebaseStatus')) {
+        document.getElementById('firebaseStatus').innerHTML = '⏫ Uploading...';
+      }
+      
+      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const storageRef = storage.ref().child(`love-memories/${fileName}`);
+      
+      await storageRef.put(file);
+      const downloadURL = await storageRef.getDownloadURL();
+      
+      await db.collection('memories').add({
+        type: type,
+        src: downloadURL,
+        title: `${type === 'image' ? '📸 Photo' : '🎥 Video'} from ${new Date().toLocaleDateString()}`,
+        date: 'Added with love 💕',
+        fileName: file.name,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      if (document.getElementById('firebaseStatus')) {
+        document.getElementById('firebaseStatus').innerHTML = '✅ Upload complete!';
+        setTimeout(() => {
+          document.getElementById('firebaseStatus').innerHTML = '✅ Connected to Firebase';
+        }, 2000);
+      }
+      
+      loadMediaFromFirebase();
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      if (document.getElementById('firebaseStatus')) {
+        document.getElementById('firebaseStatus').innerHTML = '❌ Upload failed';
+      }
+      alert('Failed to upload. Check console for details.\n' + error.message);
+    }
+  }
+
+  // ==================== DELETE MEDIA ====================
+  async function deleteMedia(mediaId, mediaSrc) {
+    if (!firebaseInitialized) {
+      allMedia = allMedia.filter(m => m.id !== mediaId);
+      refreshGallery();
+      return;
+    }
+
+    try {
+      await db.collection('memories').doc(mediaId).delete();
+      
+      try {
+        if (mediaSrc && mediaSrc.includes('firebasestorage')) {
+          const storageRef = storage.refFromURL(mediaSrc);
+          await storageRef.delete();
+        }
+      } catch (storageError) {
+        console.log('Storage delete skipped');
+      }
+      
+      loadMediaFromFirebase();
+      
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete.');
+    }
+  }
+
+  // ==================== GALLERY RENDERING ====================
+  function refreshGallery() {
+    const gallery = document.getElementById('memory-gallery');
+    if (!gallery) return;
+    
+    gallery.innerHTML = '';
+    
+    let filteredMedia = allMedia;
+    if (currentFilter !== 'all') {
+      filteredMedia = allMedia.filter(m => m.type === currentFilter);
     }
     
-    // Toggle theme
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      applyTheme(newTheme);
-      
-      // Add transition class for smooth change
-      document.body.classList.add('theme-transition');
-      setTimeout(() => {
-        document.body.classList.remove('theme-transition');
-      }, 500);
-    }
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const mediaToShow = filteredMedia.slice(startIndex, endIndex);
     
-    // Initialize theme
-    applyTheme(getPreferredTheme());
-    
-    // Add CSS for theme transition
-    const style = document.createElement('style');
-    style.textContent = `
-      .theme-transition * {
-        transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    // Event listener for theme toggle button
-    themeToggle.addEventListener('click', toggleTheme);
-    
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      // Only apply system theme if no manual preference is set
-      if (!localStorage.getItem('theme')) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    });
-
-    // ==================== EXISTING FUNCTIONALITY ====================
-    
-    // Music Player
-    const music = document.getElementById('bg-music');
-    const playSongBtn = document.getElementById('playSong');
-    let isPlaying = false;
-
-    playSongBtn.addEventListener('click',()=>{
-      if(isPlaying){
-        music.pause();
-        isPlaying = false;
-        playSongBtn.textContent = "▶ Play Theme Song";
-      } else {
-        music.play().catch(e => console.log("Autoplay prevented:", e));
-        isPlaying = true;
-        playSongBtn.textContent = "⏸ Pause Music";
-      }
-    });
-
-    // Pages Navigation
-    const introPage = document.getElementById('intro-page');
-    const galleryPage = document.getElementById('gallery-page');
-    const envelopePage = document.getElementById('envelope-page');
-    const timePage = document.getElementById('time-page');
-    const counter = document.getElementById('counter');
-
-    // Navigation functions
-    document.getElementById('toGallery').addEventListener('click',()=>{
-      introPage.classList.remove('active');
-      galleryPage.classList.add('active');
-      initGallery();
-    });
-    document.getElementById('backToIntro').addEventListener('click',()=>{
-      galleryPage.classList.remove('active');
-      introPage.classList.add('active');
-    });
-    document.getElementById('toEnvelope').addEventListener('click',()=>{
-      galleryPage.classList.remove('active');
-      envelopePage.classList.add('active');
-    });
-    document.getElementById('backToGallery').addEventListener('click',()=>{
-      envelopePage.classList.remove('active');
-      galleryPage.classList.add('active');
-      initGallery();
-    });
-    document.getElementById('toTime').addEventListener('click',()=>{
-      envelopePage.classList.remove('active');
-      timePage.classList.add('active');
-      startCounter();
-    });
-    document.getElementById('backToEnvelope').addEventListener('click',()=>{
-      timePage.classList.remove('active');
-      envelopePage.classList.add('active');
-    });
-
-    // ENVELOPE FUNCTIONALITY
-    // Envelope 1
-    const env1 = document.getElementById('env1');
-    const letter1 = document.getElementById('letter1');
-    let open1 = false;
-    
-    env1.addEventListener('click', ()=>{
-      open1 = !open1;
-      env1.classList.toggle('open', open1);
-      letter1.setAttribute('aria-hidden', !open1);
-    });
-    
-    // Envelope 2
-    const env2 = document.getElementById('env2');
-    const letter2 = document.getElementById('letter2');
-    let open2 = false;
-    
-    env2.addEventListener('click', ()=>{
-      open2 = !open2;
-      env2.classList.toggle('open', open2);
-      letter2.setAttribute('aria-hidden', !open2);
-    });
-    
-    // LETTER PAGINATION FUNCTIONALITY WITH ENHANCED NAVIGATION
-    function setupLetterPagination(letterId, prevBtnId, nextBtnId) {
-      const letter = document.getElementById(letterId);
-      const pages = letter.querySelectorAll('.letter-page');
-      const prevBtn = document.getElementById(prevBtnId);
-      const nextBtn = document.getElementById(nextBtnId);
-      const currentPageSpan = letter.querySelector('.current-page');
-      const totalPagesSpan = letter.querySelector('.total-pages');
-      
-      let currentPage = 1;
-      const totalPages = pages.length;
-      
-      totalPagesSpan.textContent = totalPages;
-      
-      function showPage(pageNum) {
-        // Hide all pages
-        pages.forEach(page => {
-          page.classList.remove('active');
+    if (mediaToShow.length === 0) {
+      gallery.innerHTML = '<p style="color: var(--text); grid-column: 1/-1; text-align: center; padding: 40px;">No memories yet. Add some! 💕</p>';
+    } else {
+      mediaToShow.forEach((item) => {
+        const galleryItem = document.createElement('div');
+        galleryItem.className = 'gallery-item';
+        galleryItem.style.height = '220px';
+        galleryItem.style.position = 'relative';
+        
+        if (item.type === 'video') {
+          galleryItem.innerHTML = `
+            <video src="${item.src}" style="width:100%; height:100%; object-fit:cover;" muted></video>
+            <div class="photo-label">🎥 ${item.title}</div>
+          `;
+        } else {
+          galleryItem.innerHTML = `
+            <img src="${item.src}" alt="${item.title}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+            <div class="photo-label">📷 ${item.title}</div>
+          `;
+        }
+        
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '×';
+        deleteBtn.style.cssText = `
+          position: absolute; top: 5px; right: 5px; width: 30px; height: 30px;
+          border-radius: 50%; background: rgba(255,0,0,0.7); color: white;
+          border: none; font-size: 20px; cursor: pointer; z-index: 10;
+          display: flex; align-items: center; justify-content: center;
+          font-weight: bold;
+        `;
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm('Delete this memory? 💔')) {
+            deleteMedia(item.id, item.src);
+          }
+        };
+        galleryItem.appendChild(deleteBtn);
+        
+        galleryItem.addEventListener('click', () => {
+          const globalIndex = allMedia.findIndex(m => m.id === item.id);
+          if (globalIndex !== -1) openLightbox(globalIndex);
         });
         
-        // Show the selected page
-        const pageToShow = letter.querySelector(`.letter-page[data-page="${pageNum}"]`);
-        if (pageToShow) {
-          pageToShow.classList.add('active');
-          currentPageSpan.textContent = pageNum;
-          currentPage = pageNum;
-        }
-        
-        // Update button states
-        prevBtn.disabled = (pageNum === 1);
-        nextBtn.disabled = (pageNum === totalPages);
-        
-        // Style disabled buttons
-        prevBtn.style.opacity = (pageNum === 1) ? '0.5' : '1';
-        nextBtn.style.opacity = (pageNum === totalPages) ? '0.5' : '1';
-      }
-      
-      // Event listeners for pagination buttons with special behavior
-      prevBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-          showPage(currentPage - 1);
-        } else {
-          // If on first page, go to countdown page
-          envelopePage.classList.remove('active');
-          timePage.classList.add('active');
-          startCounter();
-        }
+        gallery.appendChild(galleryItem);
       });
-      
-      nextBtn.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-          showPage(currentPage + 1);
-        } else {
-          // If on last page, go to countdown page
-          envelopePage.classList.remove('active');
-          timePage.classList.add('active');
-          startCounter();
-        }
-      });
-      
-      // Initialize first page
-      showPage(1);
     }
     
-    // Initialize pagination for both letters with button IDs
-    setupLetterPagination('letter1', 'prev-letter-1', 'next-letter-1');
-    setupLetterPagination('letter2', 'prev-letter-2', 'next-letter-2');
+    const totalItems = filteredMedia.length;
+    const startNum = startIndex + 1;
+    const endNum = Math.min(endIndex, totalItems);
+    const counterEl = document.querySelector('.gallery-counter');
+    if (counterEl) {
+      counterEl.textContent = totalItems > 0 ? `Memories ${startNum}-${endNum} of ${totalItems}` : 'No memories';
+    }
+    
+    const prevBtn = document.getElementById('prev-gallery');
+    const nextBtn = document.getElementById('next-gallery');
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = endIndex >= totalItems;
+  }
 
-    // Counter with improved display
-    function startCounter(){
-      const startDate = new Date("2024-06-06T00:00:00");
-      
-      function updateCounter() {
-        const now = new Date();
-        const diff = now - startDate;
+  // ==================== LIGHTBOX ====================
+  function openLightbox(index) {
+    currentMediaIndex = index;
+    const item = allMedia[index];
+    if (!item) return;
+    
+    const lightbox = document.getElementById('lightbox');
+    const imgEl = document.getElementById('lightbox-image');
+    const videoEl = document.getElementById('lightbox-video');
+    
+    if (!lightbox || !imgEl || !videoEl) return;
+    
+    if (item.type === 'video') {
+      imgEl.style.display = 'none';
+      videoEl.style.display = 'block';
+      videoEl.src = item.src;
+      videoEl.load();
+    } else {
+      videoEl.style.display = 'none';
+      videoEl.pause();
+      imgEl.style.display = 'block';
+      imgEl.src = item.src;
+    }
+    
+    document.getElementById('lightbox-title').textContent = item.title;
+    document.getElementById('lightbox-date').textContent = item.date;
+    lightbox.classList.add('active');
+  }
+
+  // ==================== GALLERY EVENT LISTENERS ====================
+  function initGalleryEvents() {
+    // Filter buttons
+    document.querySelectorAll('.media-filter').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.media-filter').forEach(b => {
+          b.style.background = 'var(--secondary-btn)';
+        });
+        this.style.background = 'var(--env-dark)';
+        currentFilter = this.dataset.type;
+        currentPage = 1;
+        refreshGallery();
+      });
+    });
+    
+    // Add photo button
+    const addPictureBtn = document.getElementById('addPictureBtn');
+    if (addPictureBtn) {
+      addPictureBtn.addEventListener('click', function() {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.accept = 'image/*';
+        fileInput.click();
         
-        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-        const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.44));
-        const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        fileInput.onchange = function(e) {
+          const file = e.target.files[0];
+          if (file && file.type.startsWith('image/')) {
+            uploadMedia(file, 'image');
+          }
+          fileInput.value = '';
+        };
+      });
+    }
+    
+    // Add video button
+    const addVideoBtn = document.getElementById('addVideoBtn');
+    if (addVideoBtn) {
+      addVideoBtn.addEventListener('click', function() {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.accept = 'video/*';
+        fileInput.click();
         
-        counter.innerHTML = `
-          <span class="cute-heart">❤️</span> <strong>${years}</strong> years, <strong>${months}</strong> months, <strong>${days}</strong> days <br><br>
-          <span class="cute-heart">💕</span> <strong>${hours}</strong> hours, <strong>${minutes}</strong> minutes, <strong>${seconds}</strong> seconds <br><br>
-          <span class="cute-heart">✨</span> That's <strong>${Math.floor(diff/(1000*60*60*24))}</strong> amazing days together!
-        `;
+        fileInput.onchange = function(e) {
+          const file = e.target.files[0];
+          if (file && file.type.startsWith('video/')) {
+            uploadMedia(file, 'video');
+          }
+          fileInput.value = '';
+        };
+      });
+    }
+    
+    // Gallery navigation
+    const prevGallery = document.getElementById('prev-gallery');
+    const nextGallery = document.getElementById('next-gallery');
+    
+    if (prevGallery) {
+      prevGallery.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          refreshGallery();
+        }
+      });
+    }
+    
+    if (nextGallery) {
+      nextGallery.addEventListener('click', () => {
+        const filteredMedia = currentFilter === 'all' ? allMedia : allMedia.filter(m => m.type === currentFilter);
+        if (currentPage < Math.ceil(filteredMedia.length / itemsPerPage)) {
+          currentPage++;
+          refreshGallery();
+        }
+      });
+    }
+    
+    // Lightbox navigation
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    
+    if (lightboxPrev) {
+      lightboxPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const filteredMedia = currentFilter === 'all' ? allMedia : allMedia.filter(m => m.type === currentFilter);
+        const currentFilteredIndex = filteredMedia.findIndex(m => m.id === allMedia[currentMediaIndex].id);
+        const newFilteredIndex = (currentFilteredIndex - 1 + filteredMedia.length) % filteredMedia.length;
+        const newGlobalIndex = allMedia.findIndex(m => m.id === filteredMedia[newFilteredIndex].id);
+        openLightbox(newGlobalIndex);
+      });
+    }
+    
+    if (lightboxNext) {
+      lightboxNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const filteredMedia = currentFilter === 'all' ? allMedia : allMedia.filter(m => m.type === currentFilter);
+        const currentFilteredIndex = filteredMedia.findIndex(m => m.id === allMedia[currentMediaIndex].id);
+        const newFilteredIndex = (currentFilteredIndex + 1) % filteredMedia.length;
+        const newGlobalIndex = allMedia.findIndex(m => m.id === filteredMedia[newFilteredIndex].id);
+        openLightbox(newGlobalIndex);
+      });
+    }
+    
+    // Lightbox close
+    const closeLightbox = document.getElementById('close-lightbox');
+    const lightbox = document.getElementById('lightbox');
+    
+    if (closeLightbox) {
+      closeLightbox.addEventListener('click', () => {
+        lightbox.classList.remove('active');
+        const videoEl = document.getElementById('lightbox-video');
+        if (videoEl) videoEl.pause();
+      });
+    }
+    
+    if (lightbox) {
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          lightbox.classList.remove('active');
+          const videoEl = document.getElementById('lightbox-video');
+          if (videoEl) videoEl.pause();
+        }
+      });
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (!document.getElementById('lightbox').classList.contains('active')) return;
+      if (e.key === 'Escape') {
+        document.getElementById('lightbox').classList.remove('active');
+        const videoEl = document.getElementById('lightbox-video');
+        if (videoEl) videoEl.pause();
+      } else if (e.key === 'ArrowLeft') {
+        document.getElementById('lightbox-prev').click();
+      } else if (e.key === 'ArrowRight') {
+        document.getElementById('lightbox-next').click();
       }
-      
-      updateCounter();
-      setInterval(updateCounter, 1000);
+    });
+  }
+
+  // ==================== ENVELOPE FUNCTIONALITY ====================
+  const env1 = document.getElementById('env1');
+  const env2 = document.getElementById('env2');
+  let open1 = false, open2 = false;
+  
+  if (env1) {
+    env1.addEventListener('click', (e)=>{
+      if(e.target.closest('.letter-pagination')) return;
+      open1 = !open1;
+      env1.classList.toggle('open', open1);
+    });
+  }
+  
+  if (env2) {
+    env2.addEventListener('click', (e)=>{
+      if(e.target.closest('.letter-pagination')) return;
+      open2 = !open2;
+      env2.classList.toggle('open', open2);
+    });
+  }
+
+  // ==================== LETTER PAGINATION ====================
+  function setupLetterPagination(letterId, prevBtnId, nextBtnId) {
+    const letter = document.getElementById(letterId);
+    if (!letter) return;
+    
+    const pages = letter.querySelectorAll('.letter-page');
+    const prevBtn = document.getElementById(prevBtnId);
+    const nextBtn = document.getElementById(nextBtnId);
+    const currentPageSpan = letter.querySelector('.current-page');
+    const totalPagesSpan = letter.querySelector('.total-pages');
+    
+    if (!pages.length || !prevBtn || !nextBtn || !currentPageSpan || !totalPagesSpan) return;
+    
+    let currentPage = 1;
+    const totalPages = pages.length;
+    totalPagesSpan.textContent = totalPages;
+
+    function showPage(pageNum) {
+      pages.forEach(p => p.classList.remove('active'));
+      const pageToShow = letter.querySelector(`.letter-page[data-page="${pageNum}"]`);
+      if(pageToShow) {
+        pageToShow.classList.add('active');
+        currentPageSpan.textContent = pageNum;
+        currentPage = pageNum;
+      }
+      prevBtn.disabled = (pageNum === 1);
+      nextBtn.disabled = (pageNum === totalPages);
+      prevBtn.style.opacity = (pageNum === 1) ? '0.5' : '1';
+      nextBtn.style.opacity = (pageNum === totalPages) ? '0.5' : '1';
     }
 
-    // Floating Hearts
-    const heartsContainer = document.getElementById('hearts');
+    prevBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (currentPage > 1) {
+        showPage(currentPage - 1);
+      } else {
+        envelopePage.classList.remove('active');
+        timePage.classList.add('active');
+        startCounter();
+      }
+    });
+
+    nextBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (currentPage < totalPages) {
+        showPage(currentPage + 1);
+      } else {
+        envelopePage.classList.remove('active');
+        timePage.classList.add('active');
+        startCounter();
+      }
+    });
+
+    showPage(1);
+  }
+
+  // Initialize letter pagination
+  setupLetterPagination('letter1', 'prev-letter-1', 'next-letter-1');
+  setupLetterPagination('letter2', 'prev-letter-2', 'next-letter-2');
+
+  // ==================== COUNTER FUNCTION ====================
+  function startCounter(){
+    const startDate = new Date("2024-06-06T00:00:00");
+    
+    function updateCounter() {
+      const now = new Date();
+      const diff = now - startDate;
+      
+      const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+      const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.44));
+      const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      const counterEl = document.getElementById('counter');
+      if (counterEl) {
+        counterEl.innerHTML = `
+          <span class="cute-heart">❤️</span> <strong>${years}</strong> years, <strong>${months}</strong> months, <strong>${days}</strong> days <br><br>
+          <span class="cute-heart">💕</span> <strong>${hours}</strong>h <strong>${minutes}</strong>m <strong>${seconds}</strong>s <br><br>
+          ✨ That's <strong>${Math.floor(diff/(1000*60*60*24))}</strong> days together!
+        `;
+      }
+    }
+    
+    updateCounter();
+    setInterval(updateCounter, 1000);
+  }
+
+  // ==================== FLOATING HEARTS ====================
+  const heartsContainer = document.getElementById('hearts');
+  if (heartsContainer) {
     function createHeart(){
       const heart = document.createElement('div');
       heart.classList.add('heart');
-      heart.textContent = ["❤", "💖", "💗", "💓", "💕", "💞"][Math.floor(Math.random()*6)];
+      heart.textContent = ["❤","💖","💗","💓","💕","💞"][Math.floor(Math.random()*6)];
       heart.style.left = Math.random()*100 + "vw";
       heart.style.fontSize = (18 + Math.random()*24) + "px";
       heart.style.animationDuration = (4 + Math.random()*5) + "s";
@@ -904,149 +1433,48 @@
       setTimeout(()=>heart.remove(),7000);
     }
     setInterval(createHeart,400);
+  }
 
-    // ENHANCED GALLERY WITH LIGHTBOX
-    const memoryData = [
-      { src: "pic1.jpg", title: "Our First Date", date: "The beginning of everything 💖" },
-      { src: "pic2.jpg", title: "Laughing Together", date: "Your smile lights up my world ✨" },
-      { src: "pic3.jpg", title: "Special Celebration", date: "Celebrating us 🎉" },
-      { src: "pic4.jpg", title: "Quiet Moments", date: "Just you and me 🌙" },
-      { src: "pic5.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" },
-      { src: "pic6.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" }
-    ];
+  // ==================== PAGE NAVIGATION ====================
+  document.getElementById('toGallery').addEventListener('click',()=>{
+    introPage.classList.remove('active');
+    galleryPage.classList.add('active');
+    loadMediaFromFirebase();
+    initGalleryEvents();
+  });
 
-    const memoryData1 = [
-      { src: "pic7.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" },
-      { src: "pic8.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" },
-      { src: "pic9.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" },
-      { src: "pic10.jpg", title: "Adventures Together", date: "Exploring life side by side 🗺️" }
-    ];
-    
-    // Add this variable at the top with other variables
-    let currentGalleryPage = 1;
-    const itemsPerPage = 6;
+  document.getElementById('backToIntro').addEventListener('click',()=>{
+    galleryPage.classList.remove('active');
+    introPage.classList.add('active');
+  });
 
-    function initGallery() {
-      const gallery = document.getElementById('memory-gallery');
-      gallery.innerHTML = '';
-      
-      // Determine which images to show based on current page
-      let imagesToShow = [];
-      if (currentGalleryPage === 1) {
-        // Show first 6 images
-        imagesToShow = memoryData.slice(0, itemsPerPage);
-      } else if (currentGalleryPage === 2 && memoryData1) {
-        // Show second page images
-        imagesToShow = memoryData1;
-      }
-      
-      imagesToShow.forEach((item, index) => {
-        const galleryItem = document.createElement('div');
-        galleryItem.className = 'gallery-item';
-        galleryItem.innerHTML = `
-          <img src="${item.src}" alt="${item.title}" data-index="${index}">
-          <div class="photo-label">${item.title}</div>
-        `;
-        gallery.appendChild(galleryItem);
-        
-        // Add click event to each image
-        galleryItem.querySelector('img').addEventListener('click', () => {
-          // Calculate actual index in combined array
-          const actualIndex = (currentGalleryPage === 1) ? index : memoryData.length + index;
-          openLightbox(actualIndex);
-        });
-      });
-      
-      // Update gallery counter text
-      const galleryCounter = document.querySelector('.gallery-counter');
-      const startIndex = (currentGalleryPage === 1) ? 1 : 7;
-      const endIndex = (currentGalleryPage === 1) ? 6 : 10;
-      galleryCounter.textContent = `Memories ${startIndex}-${endIndex} of 10`;
-    }
+  document.getElementById('toEnvelope').addEventListener('click',()=>{
+    galleryPage.classList.remove('active');
+    envelopePage.classList.add('active');
+  });
 
-    // Update gallery navigation buttons
-    document.getElementById('prev-gallery').addEventListener('click', () => {
-      if (currentGalleryPage > 1) {
-        currentGalleryPage--;
-        initGallery();
-      }
-    });
+  document.getElementById('backToGallery').addEventListener('click',()=>{
+    envelopePage.classList.remove('active');
+    galleryPage.classList.add('active');
+    refreshGallery();
+    initGalleryEvents();
+  });
 
-    document.getElementById('next-gallery').addEventListener('click', () => {
-      if (currentGalleryPage < 2) {
-        currentGalleryPage++;
-        initGallery();
-      }
-    });
-    
-    // Lightbox functionality
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxTitle = document.getElementById('lightbox-title');
-    const lightboxDate = document.getElementById('lightbox-date');
-    let currentImageIndex = 0;
-    
-    // Combine all memory data for lightbox navigation
-    const allMemoryData = [...memoryData, ...memoryData1];
-    
-    function openLightbox(index) {
-      currentImageIndex = index;
-      const item = allMemoryData[index];
-      
-      if (item) {
-        lightboxImage.src = item.src;
-        lightboxTitle.textContent = item.title;
-        lightboxDate.textContent = item.date;
-        
-        lightbox.classList.add('active');
-      }
-    }
-    
-    // Lightbox controls
-    document.getElementById('close-lightbox').addEventListener('click', () => {
-      lightbox.classList.remove('active');
-    });
-    
-    document.getElementById('lightbox-prev').addEventListener('click', (e) => {
-      e.stopPropagation();
-      currentImageIndex = (currentImageIndex - 1 + allMemoryData.length) % allMemoryData.length;
-      const item = allMemoryData[currentImageIndex];
-      lightboxImage.src = item.src;
-      lightboxTitle.textContent = item.title;
-      lightboxDate.textContent = item.date;
-    });
-    
-    document.getElementById('lightbox-next').addEventListener('click', (e) => {
-      e.stopPropagation();
-      currentImageIndex = (currentImageIndex + 1) % allMemoryData.length;
-      const item = allMemoryData[currentImageIndex];
-      lightboxImage.src = item.src;
-      lightboxTitle.textContent = item.title;
-      lightboxDate.textContent = item.date;
-    });
-    
-    // Close lightbox when clicking on background
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        lightbox.classList.remove('active');
-      }
-    });
-    
-    // Add keyboard navigation for lightbox
-    document.addEventListener('keydown', (e) => {
-      if (!lightbox.classList.contains('active')) return;
-      
-      if (e.key === 'Escape') {
-        lightbox.classList.remove('active');
-      } else if (e.key === 'ArrowLeft') {
-        document.getElementById('lightbox-prev').click();
-      } else if (e.key === 'ArrowRight') {
-        document.getElementById('lightbox-next').click();
-      }
-    });
-    
-    // Initialize the page
-    initGallery();
-  </script>
+  document.getElementById('toTime').addEventListener('click',()=>{
+    envelopePage.classList.remove('active');
+    timePage.classList.add('active');
+    startCounter();
+  });
+
+  document.getElementById('backToEnvelope').addEventListener('click',()=>{
+    timePage.classList.remove('active');
+    envelopePage.classList.add('active');
+  });
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    initGalleryEvents();
+  });
+</script>
 </body>
 </html>
