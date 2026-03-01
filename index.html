@@ -581,6 +581,11 @@
       }
     }
   </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <!-- Dark Mode Toggle Button -->
@@ -675,22 +680,6 @@
     <button id="lightbox-next">→</button>
   </div>
 </div>
-
-  <!-- Enhanced Lightbox -->
-  <div class="lightbox" id="lightbox">
-    <button class="lightbox-close" id="close-lightbox">×</button>
-    <div class="lightbox-content">
-      <img src="" alt="expanded memory" id="lightbox-image">
-      <div class="lightbox-info">
-        <h3 id="lightbox-title">Our Memory</h3>
-        <p id="lightbox-date">A beautiful moment in our journey</p>
-      </div>
-    </div>
-    <div class="lightbox-nav">
-      <button id="lightbox-prev">←</button>
-      <button id="lightbox-next">→</button>
-    </div>
-  </div>
 
   <!-- PAGE 2: ENVELOPE WITH MULTIPLE LETTER PAGES -->
   <div class="page" id="envelope-page">
@@ -835,6 +824,34 @@
   </audio>
 
   <script>
+  // ==================== FIREBASE INITIALIZATION ====================
+  // Import the functions you need from the SDKs you need
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBMt2AwW3cq8Og1gqV3MfPaUGearhnAWcU",
+    authDomain: "basedpos-inventory.firebaseapp.com",
+    projectId: "basedpos-inventory",
+    storageBucket: "basedpos-inventory.firebasestorage.app",
+    messagingSenderId: "563342767045",
+    appId: "1:563342767045:web:c092f9316026927f4911ac",
+    measurementId: "G-DR1F7LW208"
+  };
+
+  // Initialize Firebase
+  let app, analytics, storage, db;
+  let firebaseInitialized = false;
+  
+  try {
+    app = firebase.initializeApp(firebaseConfig);
+    analytics = firebase.analytics();
+    storage = firebase.storage();
+    db = firebase.firestore();
+    firebaseInitialized = true;
+    console.log('Firebase initialized successfully!');
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+  }
+
   // ==================== DARK MODE FUNCTIONALITY ====================
   const themeToggle = document.getElementById('themeToggle');
   
@@ -886,40 +903,6 @@
   const timePage = document.getElementById('time-page');
   const counter = document.getElementById('counter');
 
-  // ==================== YOUR FIREBASE CONFIG ====================
-  const firebaseConfig = {
-    apiKey: "AIzaSyBMt2AwW3cq8Og1gqV3MfPaUGearhnAWcU",
-    authDomain: "basedpos-inventory.firebaseapp.com",
-    projectId: "basedpos-inventory",
-    storageBucket: "basedpos-inventory.appspot.com",
-    messagingSenderId: "563342767045",
-    appId: "1:563342767045:web:c092f9316026927f4911ac",
-    measurementId: "G-DR1F7LW208"
-  };
-
-  // Initialize Firebase
-  let app, storage, db, analytics;
-  let firebaseInitialized = false;
-  
-  try {
-    app = firebase.initializeApp(firebaseConfig);
-    storage = firebase.storage();
-    db = firebase.firestore();
-    analytics = firebase.analytics();
-    firebaseInitialized = true;
-    if (document.getElementById('firebaseStatus')) {
-      document.getElementById('firebaseStatus').innerHTML = '✅ Connected to Firebase';
-      document.getElementById('firebaseStatus').style.color = '#4CAF50';
-    }
-    console.log('Firebase initialized successfully!');
-  } catch (error) {
-    console.error('Firebase initialization failed:', error);
-    if (document.getElementById('firebaseStatus')) {
-      document.getElementById('firebaseStatus').innerHTML = '❌ Firebase connection failed. Using local storage.';
-      document.getElementById('firebaseStatus').style.color = '#ff6b6b';
-    }
-  }
-
   // ==================== GALLERY VARIABLES ====================
   let allMedia = [];
   let currentFilter = 'all';
@@ -930,11 +913,13 @@
   // ==================== LOAD MEDIA FROM FIREBASE ====================
   async function loadMediaFromFirebase() {
     if (!firebaseInitialized) {
+      updateFirebaseStatus('⚠️ Using local sample data', '#ff6b6b');
       loadSampleData();
       return;
     }
 
     try {
+      updateFirebaseStatus('📥 Loading memories...', '#ff85a2');
       const snapshot = await db.collection('memories').orderBy('timestamp', 'desc').get();
       allMedia = [];
       
@@ -945,14 +930,21 @@
         snapshot.forEach(doc => {
           allMedia.push({ id: doc.id, ...doc.data() });
         });
+        updateFirebaseStatus('✅ Connected to Firebase', '#4CAF50');
         refreshGallery();
       }
     } catch (error) {
       console.error('Error loading from Firebase:', error);
-      if (document.getElementById('firebaseStatus')) {
-        document.getElementById('firebaseStatus').innerHTML = '⚠️ Using local sample data';
-      }
+      updateFirebaseStatus('⚠️ Using local sample data', '#ff6b6b');
       loadSampleData();
+    }
+  }
+
+  function updateFirebaseStatus(message, color) {
+    const statusEl = document.getElementById('firebaseStatus');
+    if (statusEl) {
+      statusEl.innerHTML = message;
+      statusEl.style.color = color;
     }
   }
 
@@ -1000,9 +992,7 @@
     }
 
     try {
-      if (document.getElementById('firebaseStatus')) {
-        document.getElementById('firebaseStatus').innerHTML = '⏫ Uploading...';
-      }
+      updateFirebaseStatus('⏫ Uploading...', '#ff85a2');
       
       const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
       const storageRef = storage.ref().child(`love-memories/${fileName}`);
@@ -1019,20 +1009,16 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
       
-      if (document.getElementById('firebaseStatus')) {
-        document.getElementById('firebaseStatus').innerHTML = '✅ Upload complete!';
-        setTimeout(() => {
-          document.getElementById('firebaseStatus').innerHTML = '✅ Connected to Firebase';
-        }, 2000);
-      }
+      updateFirebaseStatus('✅ Upload complete!', '#4CAF50');
+      setTimeout(() => {
+        updateFirebaseStatus('✅ Connected to Firebase', '#4CAF50');
+      }, 2000);
       
       loadMediaFromFirebase();
       
     } catch (error) {
       console.error('Upload error:', error);
-      if (document.getElementById('firebaseStatus')) {
-        document.getElementById('firebaseStatus').innerHTML = '❌ Upload failed';
-      }
+      updateFirebaseStatus('❌ Upload failed', '#ff6b6b');
       alert('Failed to upload. Check console for details.\n' + error.message);
     }
   }
@@ -1474,6 +1460,12 @@
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
     initGalleryEvents();
+    // Initialize Firebase status
+    if (firebaseInitialized) {
+      updateFirebaseStatus('✅ Connected to Firebase', '#4CAF50');
+    } else {
+      updateFirebaseStatus('❌ Firebase connection failed', '#ff6b6b');
+    }
   });
 </script>
 </body>
