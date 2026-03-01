@@ -940,13 +940,14 @@
     }
   }
 
-  function updateFirebaseStatus(message, color) {
-    const statusEl = document.getElementById('firebaseStatus');
-    if (statusEl) {
-      statusEl.innerHTML = message;
-      statusEl.style.color = color;
-    }
+ function updateFirebaseStatus(message, color) {
+  const statusEl = document.getElementById('firebaseStatus');
+  if (statusEl) {
+    statusEl.innerHTML = message;
+    statusEl.style.color = color;
+    console.log('Firebase Status:', message); // Also log to console for debugging
   }
+}
 
   // ==================== SAMPLE DATA ====================
   function loadSampleData() {
@@ -971,58 +972,89 @@
     }
     loadMediaFromFirebase();
   }
-
-  // ==================== UPLOAD MEDIA TO FIREBASE ====================
-  async function uploadMedia(file, type) {
-    if (!firebaseInitialized) {
-      alert('Firebase not configured. Using local fallback.');
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        allMedia.unshift({
-          type: type,
-          src: e.target.result,
-          title: `${type === 'image' ? 'Photo' : 'Video'} ${allMedia.length + 1}`,
-          date: `Added on ${new Date().toLocaleDateString()} 💝`,
-          id: 'local-' + Date.now()
-        });
-        refreshGallery();
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    try {
-      updateFirebaseStatus('⏫ Uploading...', '#ff85a2');
-      
-      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-      const storageRef = storage.ref().child(`love-memories/${fileName}`);
-      
-      await storageRef.put(file);
-      const downloadURL = await storageRef.getDownloadURL();
-      
-      await db.collection('memories').add({
+// ==================== UPLOAD MEDIA TO FIREBASE ====================
+async function uploadMedia(file, type) {
+  if (!firebaseInitialized) {
+    alert('Firebase not configured. Using local fallback.');
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      allMedia.unshift({
         type: type,
-        src: downloadURL,
-        title: `${type === 'image' ? '📸 Photo' : '🎥 Video'} from ${new Date().toLocaleDateString()}`,
-        date: 'Added with love 💕',
-        fileName: file.name,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        src: e.target.result,
+        title: `${type === 'image' ? 'Photo' : 'Video'} ${allMedia.length + 1}`,
+        date: `Added on ${new Date().toLocaleDateString()} 💝`,
+        id: 'local-' + Date.now()
       });
-      
-      updateFirebaseStatus('✅ Upload complete!', '#4CAF50');
-      setTimeout(() => {
-        updateFirebaseStatus('✅ Connected to Firebase', '#4CAF50');
-      }, 2000);
-      
-      loadMediaFromFirebase();
-      
-    } catch (error) {
-      console.error('Upload error:', error);
-      updateFirebaseStatus('❌ Upload failed', '#ff6b6b');
-      alert('Failed to upload. Check console for details.\n' + error.message);
-    }
+      refreshGallery();
+    };
+    reader.readAsDataURL(file);
+    return;
   }
 
+  try {
+    // Show file size in status
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    updateFirebaseStatus(`⏫ Uploading... 0% (${fileSizeMB}MB)`, '#ff85a2');
+    
+    const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const storageRef = storage.ref().child(`love-memories/${fileName}`);
+    
+    // Upload with progress tracking
+    const uploadTask = storageRef.put(file);
+    
+    // Return a promise that resolves when upload is complete
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Progress function
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const uploadedMB = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1);
+          const totalMB = (snapshot.totalBytes / (1024 * 1024)).toFixed(1);
+          updateFirebaseStatus(`⏫ Uploading... ${Math.round(progress)}% (${uploadedMB}MB/${totalMB}MB)`, '#ff85a2');
+        },
+        (error) => {
+          // Error function
+          console.error('Upload error:', error);
+          updateFirebaseStatus('❌ Upload failed', '#ff6b6b');
+          reject(error);
+        },
+        async () => {
+          // Complete function
+          try {
+            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+            
+            await db.collection('memories').add({
+              type: type,
+              src: downloadURL,
+              title: `${type === 'image' ? '📸 Photo' : '🎥 Video'} from ${new Date().toLocaleDateString()}`,
+              date: 'Added with love 💕',
+              fileName: file.name,
+              fileSize: file.size,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            updateFirebaseStatus('✅ Upload complete!', '#4CAF50');
+            setTimeout(() => {
+              updateFirebaseStatus('✅ Connected to Firebase', '#4CAF50');
+            }, 2000);
+            
+            loadMediaFromFirebase();
+            resolve();
+          } catch (error) {
+            console.error('Error after upload:', error);
+            updateFirebaseStatus('❌ Failed to save metadata', '#ff6b6b');
+            reject(error);
+          }
+        }
+      );
+    });
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    updateFirebaseStatus('❌ Upload failed', '#ff6b6b');
+    alert('Failed to upload. Check console for details.\n' + error.message);
+  }
+}
   // ==================== DELETE MEDIA ====================
   async function deleteMedia(mediaId, mediaSrc) {
     if (!firebaseInitialized) {
